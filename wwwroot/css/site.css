@@ -1,0 +1,87 @@
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+}
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: #111;
+  color: #fff;
+}
+.topbar .brand {
+  font-weight: 700;
+}
+.topbar .link,
+.topbar .danger {
+  background: none;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+.topbar .danger {
+  color: #ffdddd;
+}
+.container {
+  max-width: 900px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+label {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.9rem;
+}
+input[type="text"],
+input[name="username"],
+input[name="password"] {
+  width: 100%;
+  padding: 8px;
+  margin: 4px 0 10px;
+}
+button {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+}
+button.danger {
+  border-color: #dd6666;
+  background: #ffe9e9;
+}
+.alert {
+  background: #fff7d6;
+  border: 1px solid #e6d28a;
+  padding: 8px 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+}
+.uploader,
+.player,
+.list {
+  margin-top: 20px;
+}
+.controls button {
+  margin-right: 6px;
+}
+table.tracks {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+table.tracks th,
+table.tracks td {
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+  text-align: left;
+}
+.actions {
+  white-space: nowrap;
+}
+#nowPlaying {
+  margin-top: 8px;
+  color: #444;
+  font-size: 0.95rem;
+}
