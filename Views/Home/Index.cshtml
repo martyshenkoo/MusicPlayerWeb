@@ -1,0 +1,65 @@
+@model IEnumerable<MusicPlayerWeb.Models.Track>
+
+<h2>Мій плейлист</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert">@TempData["Error"]</div>
+}
+
+<section class="uploader">
+    <form asp-controller="Tracks" asp-action="Add" method="post" enctype="multipart/form-data">
+        <label>Назва треку (необов'язково)</label>
+        <input name="title" />
+        <label>Відкрити аудіофайл</label>
+        <input type="file" name="file" accept="audio/*" required />
+        <button type="submit">Додати трек</button>
+    </form>
+</section>
+
+<section class="player">
+    <audio id="player" controls preload="metadata" style="width:100%">
+        <source id="playerSource" src="" type="audio/mpeg" />
+        Ваш браузер не підтримує аудіо.
+    </audio>
+
+    <div class="controls">
+        <button id="btnPlay">▶️ Відтворити</button>
+        <button id="btnPause">⏸ Пауза</button>
+        <button id="btnStop">⏹ Стоп</button>
+        <button id="btnBack">⏪ -10с</button>
+        <button id="btnFwd">⏩ +10с</button>
+    </div>
+    <div id="nowPlaying"></div>
+</section>
+
+<section class="list">
+    <h3>Треки</h3>
+    @if (!Model.Any())
+    {
+        <p>Додай свій перший трек вище ☝️</p>
+    }
+    else
+    {
+        <table class="tracks">
+            <thead>
+                <tr><th>Назва</th><th>Дія</th></tr>
+            </thead>
+            <tbody>
+            @foreach (var t in Model)
+            {
+                <tr data-url="@t.RelativeUrl" data-title="@t.Title">
+                    <td>@t.Title</td>
+                    <td class="actions">
+                        <button class="playThis">Відтворити</button>
+                        <form asp-controller="Tracks" asp-action="Delete" method="post" style="display:inline">
+                            <input type="hidden" name="id" value="@t.Id" />
+                            <button class="danger" type="submit">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+</section>

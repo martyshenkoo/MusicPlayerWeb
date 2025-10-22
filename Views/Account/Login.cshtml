@@ -1,0 +1,17 @@
+@{
+    ViewBag.Title = "Увійти";
+}
+
+<h2>Увійти</h2>
+@if (ViewBag.Error != null)
+{
+    <div class="alert">@ViewBag.Error</div>
+}
+<form method="post">
+    <label>Ім'я користувача</label>
+    <input name="username" required />
+    <label>Пароль</label>
+    <input name="password" type="password" required />
+    <button type="submit">Увійти</button>
+</form>
+<p>Немає облікового запису? <a href="/Account/Register">Зареєструватися</a></p>

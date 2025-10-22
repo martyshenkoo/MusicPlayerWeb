@@ -1,0 +1,33 @@
+@using Microsoft.AspNetCore.Http
+@inject IHttpContextAccessor HttpCtx
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <title>Music Player</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<body>
+<header class="topbar">
+    <div class="brand">🎵 Music Player</div>
+    <nav>
+        @if (HttpCtx.HttpContext!.User.Identity!.IsAuthenticated)
+        {
+            <form method="post" action="/Account/Logout" style="display:inline">
+                <button class="link">Вийти з акаунту</button>
+            </form>
+            <form method="post" action="/System/Exit" style="display:inline;margin-left:1rem">
+                <button class="danger">Вийти з програми</button>
+            </form>
+        }
+    </nav>
+</header>
+<main class="container">
+    @RenderBody()
+</main>
+
+<script src="~/js/player.js"></script>
+</body>
+</html>
