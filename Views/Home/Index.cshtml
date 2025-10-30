@@ -9,7 +9,7 @@
 
 <section class="uploader">
     <form asp-controller="Tracks" asp-action="Add" method="post" enctype="multipart/form-data">
-        <label>Назва треку (необов'язково)</label>
+        <label>Назва треку</label>
         <input name="title" />
         <label>Відкрити аудіофайл</label>
         <input type="file" name="file" accept="audio/*" required />
@@ -24,11 +24,11 @@
     </audio>
 
     <div class="controls">
-        <button id="btnPlay">▶️ Відтворити</button>
-        <button id="btnPause">⏸ Пауза</button>
-        <button id="btnStop">⏹ Стоп</button>
-        <button id="btnBack">⏪ -10с</button>
-        <button id="btnFwd">⏩ +10с</button>
+        <button id="btnPlay">Відтворити</button>
+        <button id="btnPause">Пауза</button>
+        <button id="btnStop">Стоп</button>
+        <button id="btnBack">-10с</button>
+        <button id="btnFwd"> +10с</button>
     </div>
     <div id="nowPlaying"></div>
 </section>
@@ -37,7 +37,7 @@
     <h3>Треки</h3>
     @if (!Model.Any())
     {
-        <p>Додай свій перший трек вище ☝️</p>
+        <p>Додай свій перший трек вище </p>
     }
     else
     {
