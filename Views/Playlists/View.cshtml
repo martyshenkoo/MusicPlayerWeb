@@ -1,0 +1,69 @@
+@model IEnumerable<MusicPlayerWeb.Models.Track>
+
+@{
+    var playlist = (MusicPlayerWeb.Models.Playlist)ViewBag.Playlist;
+    bool hasIterator = ViewBag.HasIterator is bool b && b;
+}
+
+<h2>Плейліст: @playlist.Title</h2>
+
+@if (!Model.Any())
+{
+    <p>У цьому плейлісті ще немає треків.</p>
+}
+else
+{
+    <h3>Треки</h3>
+    <ul>
+        @foreach (var t in Model)
+        {
+            <li>@t.Title</li>
+        }
+    </ul>
+
+    @if (hasIterator)
+    {
+        <hr />
+        <h3>Ітератор (Iterator) для цього плейліста</h3>
+
+        <p>
+            Поточний трек:
+            <strong id="currentTrack">@ViewBag.FirstTrackTitle</strong>
+        </p>
+
+        <button id="btnPrev">Попередній</button>
+        <button id="btnNext">Наступний</button>
+
+        <script>
+            (function () {
+                const titles = @Html.Raw(ViewBag.TrackTitlesJson ?? "[]");
+                let index = 0;
+
+                const currentEl = document.getElementById("currentTrack");
+                const prevBtn = document.getElementById("btnPrev");
+                const nextBtn = document.getElementById("btnNext");
+
+                function update() {
+                    if (!titles.length) return;
+                    currentEl.textContent = titles[index];
+                }
+
+                prevBtn.addEventListener("click", function () {
+                    if (index > 0) {
+                        index--;
+                        update();
+                    }
+                });
+
+                nextBtn.addEventListener("click", function () {
+                    if (index < titles.length - 1) {
+                        index++;
+                        update();
+                    }
+                });
+
+                update();
+            })();
+        </script>
+    }
+}

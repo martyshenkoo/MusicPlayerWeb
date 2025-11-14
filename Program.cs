@@ -22,9 +22,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
 
 builder.Services.AddControllersWithViews();
 
-// DI: замість InMemory — реальні Db-сервіси
+// DI: Db-сервіси
 builder.Services.AddScoped<IUserService, DbUserService>();
 builder.Services.AddScoped<ITrackService, DbTrackService>();
+builder.Services.AddScoped<IPlaylistService, DbPlaylistService>();
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();
@@ -50,7 +51,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// створюємо папку для аплоадів
 var uploadsPath = Path.Combine(app.Environment.WebRootPath, "uploads");
 Directory.CreateDirectory(uploadsPath);
 

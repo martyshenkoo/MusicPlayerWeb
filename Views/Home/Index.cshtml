@@ -1,65 +1,112 @@
-@model IEnumerable<MusicPlayerWeb.Models.Track>
+@model MusicPlayerWeb.Models.PlaylistPageViewModel
 
-<h2>Мій плейлист</h2>
+<h2>Музичний програвач</h2>
 
 @if (TempData["Error"] != null)
 {
     <div class="alert">@TempData["Error"]</div>
 }
 
-<section class="uploader">
-    <form asp-controller="Tracks" asp-action="Add" method="post" enctype="multipart/form-data">
-        <label>Назва треку</label>
-        <input name="title" />
-        <label>Відкрити аудіофайл</label>
-        <input type="file" name="file" accept="audio/*" required />
-        <button type="submit">Додати трек</button>
-    </form>
-</section>
+<div class="layout">
 
-<section class="player">
-    <audio id="player" controls preload="metadata" style="width:100%">
-        <source id="playerSource" src="" type="audio/mpeg" />
-        Ваш браузер не підтримує аудіо.
-    </audio>
+    <aside class="sidebar">
+        <h3>Мої плейлісти</h3>
 
-    <div class="controls">
-        <button id="btnPlay">Відтворити</button>
-        <button id="btnPause">Пауза</button>
-        <button id="btnStop">Стоп</button>
-        <button id="btnBack">-10с</button>
-        <button id="btnFwd"> +10с</button>
-    </div>
-    <div id="nowPlaying"></div>
-</section>
+        @foreach (var p in Model.Playlists)
+        {
+            var active = Model.SelectedPlaylistId == p.Id ? "active" : "";
+            <div>
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   asp-route-playlistId="@p.Id"
+                   class="@active">@p.Title</a>
+            </div>
+        }
 
-<section class="list">
-    <h3>Треки</h3>
-    @if (!Model.Any())
-    {
-        <p>Додай свій перший трек вище </p>
-    }
-    else
-    {
-        <table class="tracks">
-            <thead>
-                <tr><th>Назва</th><th>Дія</th></tr>
-            </thead>
-            <tbody>
-            @foreach (var t in Model)
+        <h4>Новий плейліст</h4>
+        <form asp-controller="Playlists" asp-action="Create" method="post">
+            <input type="text" name="title" required />
+            <button>Створити</button>
+        </form>
+    </aside>
+
+    <section class="main">
+
+        @if (!Model.SelectedPlaylistId.HasValue)
+        {
+            <p>Вибери плейліст.</p>
+            return;
+        }
+
+        <h3>Плейліст: @Model.SelectedPlaylistTitle</h3>
+
+        <section class="uploader">
+            <form asp-controller="Tracks" asp-action="Add" enctype="multipart/form-data" method="post">
+
+                <label>До якого плейліста додати?</label>
+                <select name="playlistId" required>
+                    @foreach (var p in Model.Playlists)
+                    {
+                        <option value="@p.Id" selected="@(p.Id == Model.SelectedPlaylistId)">
+                            @p.Title
+                        </option>
+                    }
+                </select>
+
+                <label>Назва треку</label>
+                <input name="title" required />
+
+                <label>Файл</label>
+                <input type="file" name="file" accept="audio/*" required />
+
+                <button type="submit">Додати трек</button>
+            </form>
+        </section>
+
+        <section class="list">
+            <h3>Треки</h3>
+
+            @if (!Model.Tracks.Any())
             {
-                <tr data-url="@t.RelativeUrl" data-title="@t.Title">
-                    <td>@t.Title</td>
-                    <td class="actions">
-                        <button class="playThis">Відтворити</button>
-                        <form asp-controller="Tracks" asp-action="Delete" method="post" style="display:inline">
-                            <input type="hidden" name="id" value="@t.Id" />
-                            <button class="danger" type="submit">Видалити</button>
-                        </form>
-                    </td>
-                </tr>
+                <p>У цьому плейлісті ще немає треків.</p>
             }
-            </tbody>
-        </table>
-    }
-</section>
+            else
+            {
+                <table class="tracks">
+                    <thead>
+                        <tr><th>Назва</th><th>Дія</th></tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var t in Model.Tracks)
+                    {
+                        <tr data-url="@t.RelativeUrl" data-title="@t.Title">
+                            <td>@t.Title</td>
+                            <td>
+                                <button class="playThis">▶</button>
+
+                                <form asp-controller="Tracks" asp-action="Delete" method="post" style="display:inline">
+                                    <input type="hidden" name="id" value="@t.Id" />
+                                    <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+                                    <button class="danger">Видалити</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            }
+        </section>
+
+        <section class="player">
+            <audio id="player" controls preload="metadata" style="width:100%">
+                <source id="playerSource" src="" type="audio/mpeg" />
+                Тег аудіо не підтримується.
+            </audio>
+            <div id="nowPlaying"></div>
+        </section>
+
+    </section>
+
+</div>
+
+<script src="~/js/player.js"></script>
