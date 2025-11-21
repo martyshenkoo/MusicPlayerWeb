@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.EntityFrameworkCore;
 using MusicPlayerWeb.Data;
 using MusicPlayerWeb.Services;
+using MusicPlayerWeb.Services.Commands;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +27,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IUserService, DbUserService>();
 builder.Services.AddScoped<ITrackService, DbTrackService>();
 builder.Services.AddScoped<IPlaylistService, DbPlaylistService>();
+builder.Services.AddSingleton<PlayerStateService>();
+builder.Services.AddSingleton<PlayerCommandInvoker>();
 
 builder.Services.AddHttpContextAccessor();
 var app = builder.Build();

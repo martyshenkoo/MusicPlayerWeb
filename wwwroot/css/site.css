@@ -1,133 +1,325 @@
-body {
-  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-  margin: 0;
+:root {
+  --bg: #0c0c12;
+  --panel: #181820;
+  --panel-alt: #1f1f2a;
+  --border: rgba(255, 255, 255, 0.08);
+  --accent: #6c63ff;
+  --accent-strong: #b084ff;
+  --text: #f8f8ff;
+  --muted: #9da6c1;
+  --danger: #ff6b6b;
 }
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  margin: 0;
+  color: var(--text);
+  background: radial-gradient(circle at top, #1b1b2a 0%, var(--bg) 60%);
+  min-height: 100vh;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 16px;
-  background: #111;
-  color: #fff;
+  padding: 14px 24px;
+  background: #0a0a0f;
+  color: var(--text);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
+
 .topbar .brand {
   font-weight: 700;
+  letter-spacing: 0.04em;
 }
+
 .topbar .link,
 .topbar .danger {
   background: none;
   border: none;
-  color: #fff;
+  color: var(--text);
   cursor: pointer;
+  font-weight: 500;
+  padding: 6px 12px;
+  border-radius: 999px;
+  transition: background 0.2s ease;
 }
+
 .topbar .danger {
-  color: #ffdddd;
+  color: var(--danger);
 }
+
+.topbar button:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .container {
-  max-width: 1100px;
-  margin: 24px auto;
-  padding: 0 16px;
+  max-width: 1200px;
+  margin: 36px auto;
+  padding: 0 20px 60px;
 }
+
 label {
   display: block;
-  margin-top: 8px;
-  font-size: 0.9rem;
+  margin-top: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
+
 input[type="text"],
 input[name="username"],
-input[name="password"] {
+input[name="password"],
+select,
+input[type="file"] {
   width: 100%;
-  padding: 8px;
-  margin: 4px 0 10px;
-}
-button {
-  padding: 8px 12px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  background: #f5f5f5;
-  cursor: pointer;
-}
-button.danger {
-  border-color: #dd6666;
-  background: #ffe9e9;
-}
-.alert {
-  background: #fff7d6;
-  border: 1px solid #e6d28a;
-  padding: 8px 12px;
-  margin: 8px 0;
-  border-radius: 8px;
-}
-.uploader,
-.player,
-.list {
-  margin-top: 20px;
-}
-.controls button {
-  margin-right: 6px;
-}
-table.tracks {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-table.tracks th,
-table.tracks td {
-  border-bottom: 1px solid #eee;
-  padding: 10px;
-  text-align: left;
-}
-.actions {
-  white-space: nowrap;
-}
-#nowPlaying {
-  margin-top: 8px;
-  color: #444;
+  padding: 10px 12px;
+  margin: 6px 0 14px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: #111119;
+  color: var(--text);
   font-size: 0.95rem;
 }
 
-/* Лейаут з плейлістами */
+button {
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 10px 20px rgba(108, 99, 255, 0.25);
+}
+
+button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 24px rgba(108, 99, 255, 0.35);
+}
+
+button.danger {
+  background: linear-gradient(135deg, #ff5f6d, #ffc371);
+  box-shadow: 0 10px 20px rgba(255, 95, 109, 0.25);
+}
+
+.alert {
+  background: rgba(255, 193, 7, 0.1);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  padding: 10px 14px;
+  margin: 12px 0 20px;
+  border-radius: 12px;
+  color: #ffe7b3;
+}
+
+.uploader,
+.player,
+.list {
+  margin-top: 24px;
+}
+
+#nowPlaying {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.95rem;
+}
+
 .layout {
   display: flex;
-  gap: 24px;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.card-panel {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.04);
 }
 
 .sidebar {
-  flex: 0 0 280px;
-  border-right: 1px solid #eee;
-  padding-right: 16px;
+  flex: 0 0 300px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .main {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
-.playlist-list {
-  list-style: none;
-  padding-left: 0;
+.playlist-item {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 12px;
+  background: var(--panel-alt);
+  margin-bottom: 12px;
 }
 
-.playlist-list li {
-  margin-bottom: 8px;
-}
-
-.playlist-list a {
-  text-decoration: none;
-  color: #333;
+.playlist-item .playlist-link a {
   font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
 }
 
-.playlist-list a.active {
-  color: #0055cc;
+.playlist-item.active {
+  border-color: var(--accent);
+  box-shadow: 0 0 15px rgba(108, 99, 255, 0.3);
 }
 
 .inline-form {
-  display: inline-block;
-  margin-left: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
 }
 
 .inline-form input[type="text"] {
-  width: 120px;
-  padding: 4px;
-  font-size: 0.8rem;
+  width: 150px;
+  padding: 6px 10px;
+  margin: 0;
+}
+
+.new-playlist-form button {
+  width: 100%;
+}
+
+.tracks {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 14px;
+}
+
+.tracks th,
+.tracks td {
+  padding: 14px;
+}
+
+.tracks thead {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.tracks tbody tr {
+  background: rgba(255, 255, 255, 0.02);
+  transition: background 0.2s ease;
+}
+
+.tracks tbody tr + tr {
+  border-top: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.tracks tbody tr:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.playThis {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  margin-right: 10px;
+  color: var(--text);
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+.playThis:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.controls {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.controls button {
+  flex: 1 1 150px;
+  text-align: center;
+}
+
+.equalizer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.equalizer input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+}
+
+.player-status .status-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 12px;
+}
+
+.status-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.command-history {
+  list-style: none;
+  padding-left: 0;
+  margin-top: 8px;
+}
+
+.command-history li {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 0;
+}
+
+.command-history small {
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+@media (max-width: 1024px) {
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+  }
+
+  .controls button {
+    flex: 1 1 calc(50% - 12px);
+  }
 }

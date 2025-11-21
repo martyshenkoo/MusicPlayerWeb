@@ -14,6 +14,8 @@
   const btnRepeat = document.getElementById("btnRepeat");
 
   const rows = document.querySelectorAll("table.tracks tbody tr");
+  const currentTrack = { title: "", url: "" };
+  let skipPauseNotification = false;
 
   rows.forEach((r) => {
     const btn = r.querySelector(".playThis");
@@ -27,17 +29,30 @@
 
   function playUrl(url, title) {
     if (!url) return;
+    currentTrack.title = title ?? "";
+    currentTrack.url = url ?? "";
     srcEl.src = url;
     audio.load();
     audio.play();
     now.textContent = `Зараз грає: ${title}`;
   }
 
+  function notifyCommand(action, payload) {
+    const body = payload ? JSON.stringify(payload) : "{}";
+    fetch(`/Player/${action}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body
+    }).catch(() => {});
+  }
+
   btnPlay?.addEventListener("click", () => audio.play());
   btnPause?.addEventListener("click", () => audio.pause());
   btnStop?.addEventListener("click", () => {
+    skipPauseNotification = true;
     audio.pause();
     audio.currentTime = 0;
+    notifyCommand("Stop");
   });
 
   btnBack?.addEventListener("click", () => {
@@ -63,11 +78,34 @@
     btnRepeat.style.background = repeat ? "#e0ffe0" : "";
   });
 
+  audio.addEventListener("play", () => {
+    if (currentTrack.url) {
+      notifyCommand("Play", {
+        title: currentTrack.title,
+        url: currentTrack.url
+      });
+    }
+  });
+
+  audio.addEventListener("pause", () => {
+    if (skipPauseNotification) {
+      skipPauseNotification = false;
+      return;
+    }
+    if (!audio.ended) {
+      notifyCommand("Pause");
+    }
+  });
+
   audio.addEventListener("ended", () => {
+    skipPauseNotification = true;
     if (repeat) {
       audio.currentTime = 0;
       audio.play();
+      return;
     }
+
+    notifyCommand("Stop");
   });
 
   // Еквалайзер через Web Audio API
@@ -106,7 +144,9 @@
   // Автовибір першого треку
   if (rows.length > 0) {
     const first = rows[0];
-    srcEl.src = first.getAttribute("data-url");
-    now.textContent = `Обрано: ${first.getAttribute("data-title")}`;
+    currentTrack.title = first.getAttribute("data-title") ?? "";
+    currentTrack.url = first.getAttribute("data-url") ?? "";
+    srcEl.src = currentTrack.url;
+    now.textContent = `Обрано: ${currentTrack.title}`;
   }
 })();

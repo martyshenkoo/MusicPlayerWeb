@@ -1,36 +1,47 @@
-namespace MusicPlayerWeb.Services
+using MusicPlayerWeb.Models;
+
+namespace MusicPlayerWeb.Services;
+
+public class PlayerStateService
 {
-    public class PlayerStateService
+    private readonly object _sync = new();
+    private PlayerStateSnapshot _snapshot = PlayerStateSnapshot.Empty;
+
+    public PlayerStateSnapshot Snapshot
     {
-        private static PlayerStateService? _instance;
-        private static readonly object _lock = new();
-
-        public string? CurrentTrackTitle { get; private set; }
-        public string? CurrentTrackUrl { get; private set; }
-
-        private PlayerStateService() { }
-
-        public static PlayerStateService Instance
+        get
         {
-            get
+            lock (_sync)
             {
-                lock (_lock)
-                {
-                    return _instance ??= new PlayerStateService();
-                }
+                return _snapshot;
             }
         }
+    }
 
-        public void SetTrack(string title, string url)
+    public void Play(string title, string url)
+    {
+        lock (_sync)
         {
-            CurrentTrackTitle = title;
-            CurrentTrackUrl = url;
+            _snapshot = PlayerStateSnapshot.Create(title, url, PlayerPlaybackState.Playing);
         }
+    }
 
-        public void Clear()
+    public void Pause()
+    {
+        lock (_sync)
         {
-            CurrentTrackTitle = null;
-            CurrentTrackUrl = null;
+            if (!_snapshot.HasTrack)
+                return;
+
+            _snapshot = PlayerStateSnapshot.Create(_snapshot.Title, _snapshot.Url, PlayerPlaybackState.Paused);
+        }
+    }
+
+    public void Stop()
+    {
+        lock (_sync)
+        {
+            _snapshot = PlayerStateSnapshot.Create(null, null, PlayerPlaybackState.Stopped);
         }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicPlayerWeb.Models;
 using MusicPlayerWeb.Services;
+using MusicPlayerWeb.Services.Commands;
 
 namespace MusicPlayerWeb.Controllers;
 
@@ -10,11 +11,19 @@ public class HomeController : Controller
 {
     private readonly ITrackService _tracks;
     private readonly IPlaylistService _playlists;
+    private readonly PlayerStateService _playerState;
+    private readonly PlayerCommandInvoker _commandInvoker;
 
-    public HomeController(ITrackService tracks, IPlaylistService playlists)
+    public HomeController(
+        ITrackService tracks,
+        IPlaylistService playlists,
+        PlayerStateService playerState,
+        PlayerCommandInvoker commandInvoker)
     {
         _tracks = tracks;
         _playlists = playlists;
+        _playerState = playerState;
+        _commandInvoker = commandInvoker;
     }
 
     public IActionResult Index(Guid? playlistId = null)
@@ -39,7 +48,9 @@ public class HomeController : Controller
             Playlists = playlists,
             SelectedPlaylistId = playlistId,
             SelectedPlaylistTitle = selected?.Title,
-            Tracks = tracks
+            Tracks = tracks,
+            PlayerState = _playerState.Snapshot,
+            CommandHistory = _commandInvoker.History
         };
 
         return View(model);

@@ -9,22 +9,32 @@
 
 <div class="layout">
 
-    <aside class="sidebar">
+    <aside class="sidebar card-panel">
         <h3>Мої плейлісти</h3>
 
         @foreach (var p in Model.Playlists)
         {
             var active = Model.SelectedPlaylistId == p.Id ? "active" : "";
-            <div>
-                <a asp-controller="Home"
-                   asp-action="Index"
-                   asp-route-playlistId="@p.Id"
-                   class="@active">@p.Title</a>
+            <div class="playlist-item @active">
+                <div class="playlist-link">
+                    <a asp-controller="Home"
+                       asp-action="Index"
+                       asp-route-playlistId="@p.Id">@p.Title</a>
+                </div>
+                <form asp-controller="Playlists" asp-action="Rename" method="post" class="inline-form">
+                    <input type="hidden" name="playlistId" value="@p.Id" />
+                    <input type="text" name="newTitle" value="@p.Title" required />
+                    <button title="Перейменувати">Перейменувати</button>
+                </form>
+                <form asp-controller="Playlists" asp-action="Delete" method="post" class="inline-form">
+                    <input type="hidden" name="playlistId" value="@p.Id" />
+                    <button class="danger" title="Видалити">✖</button>
+                </form>
             </div>
         }
 
         <h4>Новий плейліст</h4>
-        <form asp-controller="Playlists" asp-action="Create" method="post">
+        <form asp-controller="Playlists" asp-action="Create" method="post" class="new-playlist-form">
             <input type="text" name="title" required />
             <button>Створити</button>
         </form>
@@ -40,7 +50,7 @@
 
         <h3>Плейліст: @Model.SelectedPlaylistTitle</h3>
 
-        <section class="uploader">
+        <section class="uploader card-panel">
             <form asp-controller="Tracks" asp-action="Add" enctype="multipart/form-data" method="post">
 
                 <label>До якого плейліста додати?</label>
@@ -63,7 +73,7 @@
             </form>
         </section>
 
-        <section class="list">
+        <section class="list card-panel">
             <h3>Треки</h3>
 
             @if (!Model.Tracks.Any())
@@ -97,12 +107,28 @@
             }
         </section>
 
-        <section class="player">
+        <section class="player card-panel">
             <audio id="player" controls preload="metadata" style="width:100%">
                 <source id="playerSource" src="" type="audio/mpeg" />
                 Тег аудіо не підтримується.
             </audio>
             <div id="nowPlaying"></div>
+            <div class="controls">
+                <button id="btnPlay">▶ Відтворити</button>
+                <button id="btnPause">⏸ Пауза</button>
+                <button id="btnStop" class="danger">⏹ Стоп</button>
+                <button id="btnBack">⏪ -10с</button>
+                <button id="btnFwd">⏩ +10с</button>
+                <button id="btnShuffle">🔀 Shuffle</button>
+                <button id="btnRepeat">🔁 Repeat</button>
+            </div>
+            <section class="equalizer">
+                <h4>Еквалайзер</h4>
+                <label for="eqBass">Низькі частоти</label>
+                <input type="range" id="eqBass" min="-15" max="15" value="0" />
+                <label for="eqTreble">Високі частоти</label>
+                <input type="range" id="eqTreble" min="-15" max="15" value="0" />
+            </section>
         </section>
 
     </section>
