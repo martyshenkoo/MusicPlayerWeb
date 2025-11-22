@@ -91,6 +91,34 @@ public class DbPlaylistService : IPlaylistService
         return true;
     }
 
+    public bool Restore(string username, Guid playlistId, string title)
+    {
+        var trimmed = (title ?? string.Empty).Trim();
+        if (string.IsNullOrEmpty(trimmed))
+            trimmed = "Без назви";
+
+        var existing = _db.Playlists.FirstOrDefault(p => p.Id == playlistId && p.OwnerUsername == username);
+
+        if (existing != null)
+        {
+            existing.Title = trimmed;
+        }
+        else
+        {
+            var pl = new Playlist
+            {
+                Id = playlistId,
+                Title = trimmed,
+                OwnerUsername = username,
+                CreatedAt = DateTime.UtcNow
+            };
+            _db.Playlists.Add(pl);
+        }
+
+        _db.SaveChanges();
+        return true;
+    }
+
     public bool Rename(string username, Guid playlistId, string newTitle)
     {
         var pl = _db.Playlists.FirstOrDefault(p => p.Id == playlistId && p.OwnerUsername == username);

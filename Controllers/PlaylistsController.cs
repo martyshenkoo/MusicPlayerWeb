@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicPlayerWeb.Models;
 using MusicPlayerWeb.Services;
+using MusicPlayerWeb.Services.Playlists;
 using System.Linq;
 
 namespace MusicPlayerWeb.Controllers;
@@ -10,10 +11,12 @@ namespace MusicPlayerWeb.Controllers;
 public class PlaylistsController : Controller
 {
     private readonly IPlaylistService _playlists;
+    private readonly IPlaylistHistoryService _history;
 
-    public PlaylistsController(IPlaylistService playlists)
+    public PlaylistsController(IPlaylistService playlists, IPlaylistHistoryService history)
     {
         _playlists = playlists;
+        _history = history;
     }
 
     [HttpPost]
@@ -42,6 +45,12 @@ public class PlaylistsController : Controller
             return RedirectToAction("Index", "Home", new { playlistId });
         }
 
+        if (!_history.Backup(username, playlistId))
+        {
+            TempData["Error"] = "Плейліст не знайдено для створення знімка стану.";
+            return RedirectToAction("Index", "Home", new { playlistId });
+        }
+
         var ok = _playlists.Rename(username, playlistId, newTitle);
 
         if (!ok)
@@ -55,6 +64,12 @@ public class PlaylistsController : Controller
     {
         var username = User.Identity!.Name!;
 
+        if (!_history.Backup(username, playlistId))
+        {
+            TempData["Error"] = "Плейліст не знайдено.";
+            return RedirectToAction("Index", "Home");
+        }
+
         var ok = _playlists.Delete(username, playlistId);
 
         if (!ok)
@@ -63,7 +78,24 @@ public class PlaylistsController : Controller
             return RedirectToAction("Index", "Home");
         }
 
-        return RedirectToAction("Index", "Home");
+        TempData["Info"] = "Плейліст видалено. Натисни \"Скасувати\", щоб повернути його.";
+        return RedirectToAction("Index", "Home", new { playlistId });
+    }
+
+    [HttpPost]
+    public IActionResult Undo(Guid playlistId)
+    {
+        var username = User.Identity!.Name!;
+        if (!_history.Undo(username, playlistId))
+        {
+            TempData["Error"] = "Немає попереднього стану для відновлення.";
+        }
+        else
+        {
+            TempData["Info"] = "Стан плейліста відновлено.";
+        }
+
+        return RedirectToAction("Index", "Home", new { playlistId });
     }
 
     [HttpGet]

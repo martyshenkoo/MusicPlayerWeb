@@ -6,6 +6,10 @@
 {
     <div class="alert">@TempData["Error"]</div>
 }
+@if (TempData["Info"] != null)
+{
+    <div class="alert info">@TempData["Info"]</div>
+}
 
 <div class="layout">
 
@@ -49,6 +53,22 @@
         }
 
         <h3>Плейліст: @Model.SelectedPlaylistTitle</h3>
+        @if (Model.SelectedPlaylistId.HasValue)
+        {
+            <div class="playlist-undo">
+                <form asp-controller="Playlists" asp-action="Undo" method="post" class="inline-form">
+                    <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+                    @if (Model.CanUndoPlaylistChanges)
+                    {
+                        <button type="submit">↶ Скасувати останню дію</button>
+                    }
+                    else
+                    {
+                        <button type="submit" disabled title="Немає попереднього стану">↶ Скасувати останню дію</button>
+                    }
+                </form>
+            </div>
+        }
 
         <section class="uploader card-panel">
             <form asp-controller="Tracks" asp-action="Add" enctype="multipart/form-data" method="post">

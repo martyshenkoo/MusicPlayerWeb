@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using MusicPlayerWeb.Data;
 using MusicPlayerWeb.Services;
 using MusicPlayerWeb.Services.Commands;
+using MusicPlayerWeb.Services.Playlists;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,11 +23,13 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddMemoryCache();
 
 // DI: Db-сервіси
 builder.Services.AddScoped<IUserService, DbUserService>();
 builder.Services.AddScoped<ITrackService, DbTrackService>();
 builder.Services.AddScoped<IPlaylistService, DbPlaylistService>();
+builder.Services.AddScoped<IPlaylistHistoryService, PlaylistHistoryService>();
 builder.Services.AddSingleton<PlayerStateService>();
 builder.Services.AddSingleton<PlayerCommandInvoker>();
 

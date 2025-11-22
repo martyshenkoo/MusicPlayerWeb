@@ -11,6 +11,7 @@ public interface IPlaylistService
 
     bool AddTrack(string username, Guid playlistId, Guid trackId);
     bool RemoveTrack(string username, Guid playlistId, Guid trackId);
+    bool Restore(string username, Guid playlistId, string title);
 
     bool Rename(string username, Guid playlistId, string newTitle);
     bool Delete(string username, Guid playlistId);

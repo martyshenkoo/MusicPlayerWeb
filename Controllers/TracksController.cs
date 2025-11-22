@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MusicPlayerWeb.Services;
+using MusicPlayerWeb.Services.Playlists;
 
 namespace MusicPlayerWeb.Controllers;
 
@@ -10,12 +11,14 @@ public class TracksController : Controller
     private readonly IWebHostEnvironment _env;
     private readonly ITrackService _tracks;
     private readonly IPlaylistService _playlists;
+    private readonly IPlaylistHistoryService _history;
 
-    public TracksController(IWebHostEnvironment env, ITrackService tracks, IPlaylistService playlists)
+    public TracksController(IWebHostEnvironment env, ITrackService tracks, IPlaylistService playlists, IPlaylistHistoryService history)
     {
         _env = env;
         _tracks = tracks;
         _playlists = playlists;
+        _history = history;
     }
 
     [HttpPost]
@@ -41,6 +44,12 @@ public class TracksController : Controller
             return RedirectToAction("Index", "Home", new { playlistId });
         }
 
+        if (!_history.Backup(username, playlistId))
+        {
+            TempData["Error"] = "Плейліст не знайдено.";
+            return RedirectToAction("Index", "Home", new { playlistId });
+        }
+
         var uploads = Path.Combine(_env.WebRootPath, "uploads");
         Directory.CreateDirectory(uploads);
 
@@ -55,7 +64,11 @@ public class TracksController : Controller
         var rel = $"/uploads/{safe}";
         var track = _tracks.AddForUser(username, title, safe, rel);
 
-        _playlists.AddTrack(username, playlistId, track.Id);
+        var added = _playlists.AddTrack(username, playlistId, track.Id);
+        if (!added)
+        {
+            TempData["Error"] = "Не вдалося додати трек до плейліста.";
+        }
 
         return RedirectToAction("Index", "Home", new { playlistId });
     }
@@ -64,7 +77,16 @@ public class TracksController : Controller
     public IActionResult Delete(Guid id, Guid playlistId)
     {
         var username = User.Identity!.Name!;
-        _tracks.Delete(username, id);
+        if (!_history.Backup(username, playlistId))
+        {
+            TempData["Error"] = "Плейліст не знайдено.";
+            return RedirectToAction("Index", "Home", new { playlistId });
+        }
+
+        var removed = _playlists.RemoveTrack(username, playlistId, id);
+        if (!removed)
+            TempData["Error"] = "Трек не знайдено в плейлісті.";
+
         return RedirectToAction("Index", "Home", new { playlistId });
     }
 }
