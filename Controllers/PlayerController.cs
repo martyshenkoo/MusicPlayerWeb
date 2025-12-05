@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using MusicPlayerWeb.Services;
-using MusicPlayerWeb.Services.Commands;
+using MusicPlayerWeb.Models;
+using MusicPlayerWeb.Services.ClientServer;
 
 namespace MusicPlayerWeb.Controllers;
 
@@ -9,13 +9,11 @@ namespace MusicPlayerWeb.Controllers;
 [Route("[controller]/[action]")]
 public class PlayerController : Controller
 {
-    private readonly PlayerCommandInvoker _invoker;
-    private readonly PlayerStateService _state;
+    private readonly PlayerClient _client;
 
-    public PlayerController(PlayerCommandInvoker invoker, PlayerStateService state)
+    public PlayerController(PlayerClient client)
     {
-        _invoker = invoker;
-        _state = state;
+        _client = client;
     }
 
     [HttpPost]
@@ -25,27 +23,26 @@ public class PlayerController : Controller
             return BadRequest("Недостатньо даних для програвання треку.");
 
         var username = User.Identity?.Name ?? "unknown";
-        var command = new PlayTrackCommand(_state, request.Title.Trim(), request.Url);
-        _invoker.Execute(command, username);
-        return Json(new { state = _state.Snapshot, history = _invoker.History });
+        var result = _client.RequestPlay(username, request.Title.Trim(), request.Url);
+        if (!result.Success)
+            return BadRequest(result.Message);
+        return Json(new { state = result.State, history = result.History, message = result.Message });
     }
 
     [HttpPost]
     public IActionResult Pause()
     {
         var username = User.Identity?.Name ?? "unknown";
-        var command = new PauseTrackCommand(_state);
-        _invoker.Execute(command, username);
-        return Json(new { state = _state.Snapshot, history = _invoker.History });
+        var result = _client.RequestPause(username);
+        return Json(new { state = result.State, history = result.History, message = result.Message });
     }
 
     [HttpPost]
     public IActionResult Stop()
     {
         var username = User.Identity?.Name ?? "unknown";
-        var command = new StopTrackCommand(_state);
-        _invoker.Execute(command, username);
-        return Json(new { state = _state.Snapshot, history = _invoker.History });
+        var result = _client.RequestStop(username);
+        return Json(new { state = result.State, history = result.History, message = result.Message });
     }
 }
 

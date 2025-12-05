@@ -1,7 +1,5 @@
 @model MusicPlayerWeb.Models.PlaylistPageViewModel
 
-<h2>Музичний програвач</h2>
-
 @if (TempData["Error"] != null)
 {
     <div class="alert">@TempData["Error"]</div>
@@ -11,94 +9,101 @@
     <div class="alert info">@TempData["Info"]</div>
 }
 
-<div class="layout">
+<div class="page-shell">
 
-    <aside class="sidebar card-panel">
-        <h3>Мої плейлісти</h3>
-
-        @foreach (var p in Model.Playlists)
-        {
-            var active = Model.SelectedPlaylistId == p.Id ? "active" : "";
-            <div class="playlist-item @active">
-                <div class="playlist-link">
-                    <a asp-controller="Home"
-                       asp-action="Index"
-                       asp-route-playlistId="@p.Id">@p.Title</a>
-                </div>
-                <form asp-controller="Playlists" asp-action="Rename" method="post" class="inline-form">
-                    <input type="hidden" name="playlistId" value="@p.Id" />
-                    <input type="text" name="newTitle" value="@p.Title" required />
-                    <button title="Перейменувати">Перейменувати</button>
-                </form>
-                <form asp-controller="Playlists" asp-action="Delete" method="post" class="inline-form">
-                    <input type="hidden" name="playlistId" value="@p.Id" />
-                    <button class="danger" title="Видалити">✖</button>
-                </form>
+@if (!Model.SelectedPlaylistId.HasValue)
+{
+    <section class="playlist-library card-panel">
+        <div class="library-header">
+            <div>
+                <h3>Мої плейлісти</h3>
+                <p class="muted">Оберіть плейліст або створіть новий, щоб розпочати.</p>
             </div>
-        }
-
-        <h4>Новий плейліст</h4>
-        <form asp-controller="Playlists" asp-action="Create" method="post" class="new-playlist-form">
-            <input type="text" name="title" required />
-            <button>Створити</button>
-        </form>
-    </aside>
-
-    <section class="main">
-
-        @if (!Model.SelectedPlaylistId.HasValue)
-        {
-            <p>Вибери плейліст.</p>
-            return;
-        }
-
-        <h3>Плейліст: @Model.SelectedPlaylistTitle</h3>
-        @if (Model.SelectedPlaylistId.HasValue)
-        {
-            <div class="playlist-undo">
-                <form asp-controller="Playlists" asp-action="Undo" method="post" class="inline-form">
-                    <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
-                    @if (Model.CanUndoPlaylistChanges)
-                    {
-                        <button type="submit">↶ Скасувати останню дію</button>
-                    }
-                    else
-                    {
-                        <button type="submit" disabled title="Немає попереднього стану">↶ Скасувати останню дію</button>
-                    }
-                </form>
-            </div>
-        }
-
-        <section class="uploader card-panel">
-            <form asp-controller="Tracks" asp-action="Add" enctype="multipart/form-data" method="post">
-
-                <label>До якого плейліста додати?</label>
-                <select name="playlistId" required>
-                    @foreach (var p in Model.Playlists)
-                    {
-                        <option value="@p.Id" selected="@(p.Id == Model.SelectedPlaylistId)">
-                            @p.Title
-                        </option>
-                    }
-                </select>
-
-                <label>Назва треку</label>
-                <input name="title" required />
-
-                <label>Файл</label>
-                <input type="file" name="file" accept="audio/*" required />
-
-                <button type="submit">Додати трек</button>
+            <form asp-controller="Playlists" asp-action="Create" method="post" class="library-create">
+                <input type="text" name="title" placeholder="Назва нового плейліста" required />
+                <button>Створити</button>
             </form>
-        </section>
+        </div>
 
-        <section class="list card-panel">
+        @if (!Model.Playlists.Any())
+        {
+            <p class="muted">Плейлістів ще немає. Створи перший, щоб додати музику.</p>
+        }
+        else
+        {
+            <div class="library-grid">
+                @foreach (var p in Model.Playlists)
+                {
+                    var active = Model.SelectedPlaylistId == p.Id ? "active" : "";
+                    var trimmed = (p.Title ?? string.Empty).Trim();
+                    var coverLetter = string.IsNullOrEmpty(trimmed) ? "♪" : trimmed.Substring(0, 1).ToUpperInvariant();
+                    <div class="playlist-card @active">
+                        <div class="playlist-head">
+                            <div class="playlist-meta">
+                                <div class="playlist-cover">@coverLetter</div>
+                                <div>
+                                    <a class="playlist-title" asp-controller="Home"
+                                       asp-action="Index"
+                                       asp-route-playlistId="@p.Id">@p.Title</a>
+                                    <p class="playlist-subtitle">Playlist · @p.OwnerUsername</p>
+                                </div>
+                            </div>
+                    <div class="playlist-actions">
+                        <button type="button" class="playlist-btn btn-rename" data-target="rename-@p.Id" title="Перейменувати">✏️</button>
+                        <form asp-controller="Playlists" asp-action="Delete" method="post" class="icon-form">
+                            <input type="hidden" name="playlistId" value="@p.Id" />
+                            <button class="danger" title="Видалити">🗑</button>
+                        </form>
+                            </div>
+                        </div>
+                        <form id="rename-@p.Id" asp-controller="Playlists" asp-action="Rename" method="post" class="rename-form">
+                            <input type="hidden" name="playlistId" value="@p.Id" />
+                            <input type="text" name="newTitle" value="@(p.Title ?? string.Empty)" data-original="@(p.Title ?? string.Empty)" required />
+                            <div class="rename-actions">
+                                <button type="submit" class="save">Зберегти</button>
+                                <button type="button" class="rename-cancel">Скасувати</button>
+                            </div>
+                        </form>
+                    </div>
+                }
+            </div>
+        }
+    </section>
+}
+else
+{
+    <section class="playlist-detail">
+        <div class="detail-header card-panel">
+            <div>
+                <a class="back-link" href="@Url.Action("Index","Home")">← Усі плейлісти</a>
+                <h1>@(Model.SelectedPlaylistTitle ?? "Без назви")</h1>
+                <p class="muted">@Model.Statistics.TrackCount трек(ів)</p>
+            </div>
+            <div class="detail-actions">
+                <div class="detail-actions-row">
+                    <button type="button" class="playlist-btn btn-rename" data-target="rename-detail" title="Перейменувати">✏️</button>
+                    <form asp-controller="Playlists" asp-action="Delete" method="post" class="icon-form">
+                        <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+                        <button class="danger" title="Видалити">🗑</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <form id="rename-detail" asp-controller="Playlists" asp-action="Rename" method="post" class="rename-form">
+            <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+            <input type="text" name="newTitle" value="@(Model.SelectedPlaylistTitle ?? string.Empty)" data-original="@(Model.SelectedPlaylistTitle ?? string.Empty)" required />
+            <div class="rename-actions">
+                <button type="submit" class="save">Зберегти</button>
+                <button type="button" class="rename-cancel">Скасувати</button>
+            </div>
+        </form>
+
+        <section class="card-panel detail-tracks">
             <h3>Треки</h3>
-
             @if (!Model.Tracks.Any())
             {
-                <p>У цьому плейлісті ще немає треків.</p>
+                <p>У цьому плейлісті ще немає треків. Додай перший, щоб розпочати.</p>
             }
             else
             {
@@ -110,15 +115,26 @@
                     @foreach (var t in Model.Tracks)
                     {
                         <tr data-url="@t.RelativeUrl" data-title="@t.Title">
-                            <td>@t.Title</td>
                             <td>
-                                <button class="playThis">▶</button>
-
-                                <form asp-controller="Tracks" asp-action="Delete" method="post" style="display:inline">
-                                    <input type="hidden" name="id" value="@t.Id" />
-                                    <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
-                                    <button class="danger">Видалити</button>
-                                </form>
+                                <div class="track-info">
+                                    <div class="thumb">
+                                        <span>@(string.IsNullOrWhiteSpace(t.Title) ? "♪" : t.Title.Substring(0,1).ToUpperInvariant())</span>
+                                    </div>
+                                    <div>
+                                        <p class="track-subtitle">Playlist · @(Model.SelectedPlaylistTitle ?? "Без назви")</p>
+                                        <p class="track-title">@t.Title</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="track-actions">
+                                <div class="action-stack">
+                                    <button class="playThis" title="Відтворити">▶</button>
+                                    <form asp-controller="Tracks" asp-action="Delete" method="post" class="inline-form">
+                                        <input type="hidden" name="id" value="@t.Id" />
+                                        <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+                                        <button class="danger" title="Видалити">✖</button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     }
@@ -127,32 +143,102 @@
             }
         </section>
 
-        <section class="player card-panel">
-            <audio id="player" controls preload="metadata" style="width:100%">
-                <source id="playerSource" src="" type="audio/mpeg" />
-                Тег аудіо не підтримується.
-            </audio>
-            <div id="nowPlaying"></div>
-            <div class="controls">
-                <button id="btnPlay">▶ Відтворити</button>
-                <button id="btnPause">⏸ Пауза</button>
-                <button id="btnStop" class="danger">⏹ Стоп</button>
-                <button id="btnBack">⏪ -10с</button>
-                <button id="btnFwd">⏩ +10с</button>
-                <button id="btnShuffle">🔀 Shuffle</button>
-                <button id="btnRepeat">🔁 Repeat</button>
-            </div>
-            <section class="equalizer">
-                <h4>Еквалайзер</h4>
-                <label for="eqBass">Низькі частоти</label>
-                <input type="range" id="eqBass" min="-15" max="15" value="0" />
-                <label for="eqTreble">Високі частоти</label>
-                <input type="range" id="eqTreble" min="-15" max="15" value="0" />
-            </section>
+        <section class="card-panel detail-uploader">
+            <h3>Додати новий трек</h3>
+            <form asp-controller="Tracks" asp-action="Add" enctype="multipart/form-data" method="post">
+                <input type="hidden" name="playlistId" value="@Model.SelectedPlaylistId" />
+                <label>Назва треку</label>
+                <input name="title" class="track-input" placeholder="Назва треку" required />
+                <label>Файл</label>
+                <input type="file" name="file" accept="audio/*" required />
+                <button type="submit">Завантажити</button>
+            </form>
         </section>
 
+        <section class="equalizer card-panel detail-eq">
+            <h3>Еквалайзер</h3>
+            <div class="equalizer-controls">
+                <div>
+                    <label for="eqBass">Низькі частоти</label>
+                    <input type="range" id="eqBass" min="-15" max="15" value="0" />
+                </div>
+                <div>
+                    <label for="eqTreble">Високі частоти</label>
+                    <input type="range" id="eqTreble" min="-15" max="15" value="0" />
+                </div>
+            </div>
+        </section>
     </section>
+}
 
 </div>
 
+<footer class="now-playing-bar">
+        <div class="now-playing-info">
+            <div class="artwork-placeholder">🎵</div>
+            <div>
+                <p id="nowPlayingTitle" class="now-playing-title">&nbsp;</p>
+            </div>
+        </div>
+        <div class="now-playing-controls">
+            <button id="btnShuffle" title="Shuffle">🔀</button>
+            <button id="btnBack" title="-10 секунд">⏪</button>
+            <button id="btnPlay" title="Відтворити">▶</button>
+            <button id="btnPause" title="Пауза">⏸</button>
+            <button id="btnStop" class="danger" title="Стоп">⏹</button>
+            <button id="btnFwd" title="+10 секунд">⏩</button>
+            <button id="btnRepeat" title="Repeat">🔁</button>
+        </div>
+        <div class="now-playing-extra">
+            <input type="range" id="playerProgress" min="0" max="100" value="0" />
+            <audio id="player" preload="metadata" class="hidden-audio">
+                <source id="playerSource" src="" type="audio/mpeg" />
+                Тег аудіо не підтримується.
+            </audio>
+            <div id="nowPlaying" class="sr-only"></div>
+        </div>
+</footer>
+
 <script src="~/js/player.js"></script>
+<script>
+    (function () {
+        const renameForms = document.querySelectorAll(".rename-form");
+
+        document.querySelectorAll(".btn-rename").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                const targetId = btn.dataset.target;
+                const form = document.getElementById(targetId);
+                if (!form) return;
+
+                renameForms.forEach(f => {
+                    if (f !== form) f.classList.remove("visible");
+                });
+
+                form.classList.toggle("visible");
+                const input = form.querySelector("input[name='newTitle']");
+                if (input) {
+                    input.focus();
+                    input.setSelectionRange(input.value.length, input.value.length);
+                }
+            });
+        });
+
+        document.querySelectorAll(".rename-cancel").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                const form = btn.closest(".rename-form");
+                if (!form) return;
+                const input = form.querySelector("input[name='newTitle']");
+                if (input && input.dataset.original) input.value = input.dataset.original;
+                form.classList.remove("visible");
+            });
+        });
+
+        document.addEventListener("click", (e) => {
+            if (e.target.closest(".rename-form") || e.target.closest(".btn-rename"))
+                return;
+            renameForms.forEach(f => f.classList.remove("visible"));
+        });
+    })();
+</script>

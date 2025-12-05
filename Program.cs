@@ -5,6 +5,8 @@ using MusicPlayerWeb.Data;
 using MusicPlayerWeb.Services;
 using MusicPlayerWeb.Services.Commands;
 using MusicPlayerWeb.Services.Playlists;
+using MusicPlayerWeb.Services.ClientServer;
+using MusicPlayerWeb.Services.Visitors;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +32,10 @@ builder.Services.AddScoped<IUserService, DbUserService>();
 builder.Services.AddScoped<ITrackService, DbTrackService>();
 builder.Services.AddScoped<IPlaylistService, DbPlaylistService>();
 builder.Services.AddScoped<IPlaylistHistoryService, PlaylistHistoryService>();
+builder.Services.AddScoped<PlayerFacade>();
+builder.Services.AddScoped<IPlayerServer, PlayerServer>();
+builder.Services.AddScoped<PlayerClient>();
+builder.Services.AddScoped<PlaylistVisitorService>();
 builder.Services.AddSingleton<PlayerStateService>();
 builder.Services.AddSingleton<PlayerCommandInvoker>();
 

@@ -130,5 +130,5 @@
 /Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/MusicPlayerWeb.pdb
 /Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/MusicPlayerWeb.genruntimeconfig.cache
 /Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/ref/MusicPlayerWeb.dll
-/Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/compressed/jzw2tf8aar-dml7sp2era.gz
-/Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/compressed/pf3dkkg910-0hka6937ro.gz
+/Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/compressed/pf3dkkg910-r5tb2734o8.gz
+/Users/irynamartyshenko/MusicPlayerWeb/obj/Debug/net9.0/compressed/jzw2tf8aar-asjqf5kdls.gz

@@ -79,7 +79,7 @@ public class PlaylistsController : Controller
         }
 
         TempData["Info"] = "Плейліст видалено. Натисни \"Скасувати\", щоб повернути його.";
-        return RedirectToAction("Index", "Home", new { playlistId });
+        return RedirectToAction("Index", "Home");
     }
 
     [HttpPost]

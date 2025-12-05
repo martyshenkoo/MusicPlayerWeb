@@ -7,6 +7,7 @@ public class PlaylistPageViewModel
     public string? SelectedPlaylistTitle { get; set; }
     public IEnumerable<Track> Tracks { get; set; } = Enumerable.Empty<Track>();
     public bool CanUndoPlaylistChanges { get; set; }
+    public PlaylistStatistics Statistics { get; set; } = PlaylistStatistics.Empty;
     public PlayerStateSnapshot PlayerState { get; set; } = PlayerStateSnapshot.Empty;
     public IReadOnlyCollection<PlayerCommandHistoryItem> CommandHistory { get; set; } = Array.Empty<PlayerCommandHistoryItem>();
 }

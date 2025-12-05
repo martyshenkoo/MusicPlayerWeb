@@ -4,6 +4,7 @@ using MusicPlayerWeb.Models;
 using MusicPlayerWeb.Services;
 using MusicPlayerWeb.Services.Commands;
 using MusicPlayerWeb.Services.Playlists;
+using MusicPlayerWeb.Services.Visitors;
 
 namespace MusicPlayerWeb.Controllers;
 
@@ -15,38 +16,41 @@ public class HomeController : Controller
     private readonly PlayerStateService _playerState;
     private readonly PlayerCommandInvoker _commandInvoker;
     private readonly IPlaylistHistoryService _history;
+    private readonly PlaylistVisitorService _visitorService;
 
     public HomeController(
         ITrackService tracks,
         IPlaylistService playlists,
         PlayerStateService playerState,
         PlayerCommandInvoker commandInvoker,
-        IPlaylistHistoryService history)
+        IPlaylistHistoryService history,
+        PlaylistVisitorService visitorService)
     {
         _tracks = tracks;
         _playlists = playlists;
         _playerState = playerState;
         _commandInvoker = commandInvoker;
         _history = history;
+        _visitorService = visitorService;
     }
 
     public IActionResult Index(Guid? playlistId = null)
     {
         var username = User.Identity!.Name!;
         var playlists = _playlists.GetForUser(username).ToList();
-        if (!playlistId.HasValue && playlists.Any())
-            playlistId = playlists.First().Id;
 
         Playlist? selected = null;
         IEnumerable<Track> tracks = Enumerable.Empty<Track>();
 
         var canUndo = false;
+        var statistics = PlaylistStatistics.Empty;
         if (playlistId.HasValue)
         {
             selected = _playlists.GetById(username, playlistId.Value);
             if (selected != null)
             {
                 tracks = _playlists.GetTracks(username, playlistId.Value);
+                statistics = _visitorService.GetStatistics(username, playlistId.Value);
             }
 
             canUndo = _history.HasHistory(username, playlistId.Value);
@@ -59,6 +63,7 @@ public class HomeController : Controller
             SelectedPlaylistTitle = selected?.Title,
             Tracks = tracks,
             CanUndoPlaylistChanges = canUndo,
+            Statistics = statistics,
             PlayerState = _playerState.Snapshot,
             CommandHistory = _commandInvoker.History
         };

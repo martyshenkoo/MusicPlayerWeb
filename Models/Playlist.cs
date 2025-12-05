@@ -1,6 +1,8 @@
+using System.Linq;
+
 namespace MusicPlayerWeb.Models;
 
-public class Playlist
+public class Playlist : IPlaylistVisitable
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = default!;
@@ -12,5 +14,15 @@ public class Playlist
     public ITrackIterator CreateIterator(IEnumerable<Track> tracks)
     {
         return new PlaylistIterator(tracks);
+    }
+
+    public void Accept(IPlaylistVisitor visitor)
+    {
+        visitor.VisitPlaylist(this);
+
+        foreach (var track in PlaylistTracks.Select(pt => pt.Track).Where(t => t != null))
+        {
+            track.Accept(visitor);
+        }
     }
 }

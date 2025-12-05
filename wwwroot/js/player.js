@@ -4,6 +4,8 @@
 
   const srcEl = document.getElementById("playerSource");
   const now = document.getElementById("nowPlaying");
+  const nowTitle = document.getElementById("nowPlayingTitle");
+  const progress = document.getElementById("playerProgress");
 
   const btnPlay = document.getElementById("btnPlay");
   const btnPause = document.getElementById("btnPause");
@@ -34,7 +36,10 @@
     srcEl.src = url;
     audio.load();
     audio.play();
-    now.textContent = `Зараз грає: ${title}`;
+    const label = title ? `Зараз грає: ${title}` : "";
+    now.textContent = label;
+    if (nowTitle) nowTitle.textContent = title ?? "";
+    setNowPlayingVisible(true);
   }
 
   function notifyCommand(action, payload) {
@@ -53,6 +58,7 @@
     audio.pause();
     audio.currentTime = 0;
     notifyCommand("Stop");
+    setNowPlayingVisible(false);
   });
 
   btnBack?.addEventListener("click", () => {
@@ -84,6 +90,7 @@
         title: currentTrack.title,
         url: currentTrack.url
       });
+      if (nowTitle) nowTitle.textContent = currentTrack.title || "";
     }
   });
 
@@ -106,7 +113,30 @@
     }
 
     notifyCommand("Stop");
+    setNowPlayingVisible(false);
   });
+
+  // Прогрес-бар
+  if (progress) {
+    progress.addEventListener("input", (e) => {
+      if (!audio.duration) return;
+      const value = Number(e.target.value);
+      audio.currentTime = (value / 100) * audio.duration;
+    });
+
+    audio.addEventListener("timeupdate", () => {
+      if (!audio.duration) return;
+      progress.value = ((audio.currentTime / audio.duration) * 100).toString();
+    });
+
+    audio.addEventListener("ended", () => {
+      progress.value = "0";
+    });
+
+    audio.addEventListener("loadedmetadata", () => {
+      progress.value = "0";
+    });
+  }
 
   // Еквалайзер через Web Audio API
   try {
@@ -147,6 +177,24 @@
     currentTrack.title = first.getAttribute("data-title") ?? "";
     currentTrack.url = first.getAttribute("data-url") ?? "";
     srcEl.src = currentTrack.url;
-    now.textContent = `Обрано: ${currentTrack.title}`;
+    const label = currentTrack.title
+      ? `Обрано: ${currentTrack.title}`
+      : "";
+    now.textContent = label;
+    if (nowTitle) nowTitle.textContent = currentTrack.title || "";
+  }
+
+  function setNowPlayingVisible(visible) {
+    const bar = document.querySelector(".now-playing-bar");
+    if (!bar) return;
+
+    if (visible) {
+      bar.classList.add("visible");
+    } else {
+      bar.classList.remove("visible");
+      now.textContent = "";
+      if (nowTitle) nowTitle.textContent = "";
+      if (progress) progress.value = "0";
+    }
   }
 })();

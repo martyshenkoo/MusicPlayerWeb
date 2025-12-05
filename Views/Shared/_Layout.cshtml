@@ -11,15 +11,11 @@
 </head>
 <body>
 <header class="topbar">
-    <div class="brand">🎵 Music Player</div>
-    <nav>
+    <nav class="topbar-actions">
         @if (HttpCtx.HttpContext!.User.Identity!.IsAuthenticated)
         {
-            <form method="post" action="/Account/Logout" style="display:inline">
-                <button class="link">Вийти з акаунту</button>
-            </form>
-            <form method="post" action="/System/Exit" style="display:inline;margin-left:1rem">
-                <button class="danger">Вийти з програми</button>
+            <form method="post" action="/Account/Logout">
+                <button class="primary-action">Вийти з акаунту</button>
             </form>
         }
     </nav>
